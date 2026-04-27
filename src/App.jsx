@@ -15,7 +15,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
+        {/* Public Routes for App*/}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
