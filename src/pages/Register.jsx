@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Dumbbell } from 'lucide-react';
 import Button from '../components/Button';
+import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,14 +28,19 @@ const Register = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validate();
-    if (Object.keys(newErrors).length === 0) {
-      localStorage.setItem('isAuthenticated', 'true');
+    if (Object.keys(newErrors).length > 0) return setErrors(newErrors);
+    setLoading(true);
+    setServerError('');
+    try {
+      await register(formData.name, formData.email, formData.password);
       navigate('/dashboard');
-    } else {
-      setErrors(newErrors);
+    } catch (err) {
+      setServerError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,6 +62,11 @@ const Register = () => {
 
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
+            {serverError && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+                {serverError}
+              </div>
+            )}
             {/* Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
@@ -113,7 +127,9 @@ const Register = () => {
               </label>
             </div>
 
-            <Button type="submit" className="w-full">Create Account</Button>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Creating account...' : 'Create Account'}
+            </Button>
           </form>
 
           <div className="mt-6 text-center">

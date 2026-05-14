@@ -1,16 +1,10 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 
 const DashboardLayout = () => {
-  const isAuthenticated = localStorage.getItem('isAuthenticated');
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />

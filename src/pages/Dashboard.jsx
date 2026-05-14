@@ -4,10 +4,13 @@ import { Flame, Footprints, TrendingUp, Trophy, Dumbbell, Activity, Target, Cale
 import ActivityChart from '../components/ActivityChart';
 import ProgressBar from '../components/ProgressBar';
 import { weeklyData, challenges } from '../utils/dummyData';
+import { useAuth } from '../context/AuthContext';
 
 const card = "bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-2xl";
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const firstName = user?.name?.split(' ')[0] || 'there';
   const stats = [
     { label: 'Calories Burned', value: '2,850', unit: 'kcal', icon: Flame, color: 'text-orange-500', bgColor: 'bg-orange-100 dark:bg-orange-900', change: '+12%' },
     { label: 'Steps Today', value: '12,547', unit: 'steps', icon: Footprints, color: 'text-blue-500', bgColor: 'bg-blue-100 dark:bg-blue-900', change: '+8%' },
@@ -35,7 +38,7 @@ const Dashboard = () => {
       <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl shadow-lg p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Welcome back, Arjun! 👋</h1>
+            <h1 className="text-3xl font-bold mb-2">Welcome back, {firstName}! 👋</h1>
             <p className="text-green-100">You're doing great! Keep up the momentum.</p>
           </div>
           <div className="hidden md:block text-right">

@@ -10,20 +10,34 @@ import Workouts from './pages/Workouts';
 import Challenges from './pages/Challenges';
 import Activity from './pages/Activity';
 import Profile from './pages/Profile';
+import { useAuth } from './context/AuthContext';
+
+function PrivateRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  return user ? children : <Navigate to="/login" replace />;
+}
+
+// Redirect logged-in users away from login/register
+function PublicRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  return user ? <Navigate to="/dashboard" replace /> : children;
+}
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes for App*/}
+        {/* Public Routes */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
         </Route>
 
         {/* Protected Dashboard Routes */}
-        <Route element={<DashboardLayout />}>
+        <Route element={<PrivateRoute><DashboardLayout /></PrivateRoute>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/workouts" element={<Workouts />} />
           <Route path="/challenges" element={<Challenges />} />
@@ -31,7 +45,6 @@ function App() {
           <Route path="/profile" element={<Profile />} />
         </Route>
 
-        {/* Catch all - redirect to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

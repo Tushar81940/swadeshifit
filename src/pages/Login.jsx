@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Dumbbell } from 'lucide-react';
 import Button from '../components/Button';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,14 +26,19 @@ const Login = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validate();
-    if (Object.keys(newErrors).length === 0) {
-      localStorage.setItem('isAuthenticated', 'true');
+    if (Object.keys(newErrors).length > 0) return setErrors(newErrors);
+    setLoading(true);
+    setServerError('');
+    try {
+      await login(formData.email, formData.password);
       navigate('/dashboard');
-    } else {
-      setErrors(newErrors);
+    } catch (err) {
+      setServerError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,6 +57,11 @@ const Login = () => {
 
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {serverError && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+                {serverError}
+              </div>
+            )}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Email Address
@@ -92,7 +106,9 @@ const Login = () => {
               <a href="#" className="text-sm font-medium text-green-600 hover:text-green-500">Forgot password?</a>
             </div>
 
-            <Button type="submit" className="w-full">Sign In</Button>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Signing in...' : 'Sign In'}
+            </Button>
           </form>
 
           <div className="mt-6 text-center">

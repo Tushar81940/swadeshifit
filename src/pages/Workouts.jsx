@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import { Search, Filter } from 'lucide-react';
 import WorkoutCard from '../components/WorkoutCard';
+import WorkoutSession from '../components/WorkoutSession';
 import { workouts } from '../utils/dummyData';
 
 const Workouts = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedDifficulty, setSelectedDifficulty] = useState('All');
+  const [activeWorkout, setActiveWorkout] = useState(null);
+
+  const handleSessionClose = (result) => {
+    setActiveWorkout(null);
+    // result contains { elapsed, caloriesBurned } if finished, or null if dismissed
+  };
 
   const categories = ['All', 'Strength', 'Cardio', 'Yoga', 'Sports Training'];
   const difficulties = ['All', 'Beginner', 'Intermediate', 'Advanced'];
@@ -23,6 +30,9 @@ const Workouts = () => {
 
   return (
     <div className="space-y-6">
+      {activeWorkout && (
+        <WorkoutSession workout={activeWorkout} onClose={handleSessionClose} />
+      )}
       <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl shadow-lg p-6 text-white">
         <h1 className="text-3xl font-bold mb-2">Workout Library</h1>
         <p className="text-green-100">Discover workouts tailored for your fitness goals</p>
@@ -59,7 +69,7 @@ const Workouts = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredWorkouts.map(workout => (
             <WorkoutCard key={workout.id} workout={workout}
-              onStart={(w) => alert(`Starting ${w.name}!`)} />
+              onStart={(w) => setActiveWorkout(w)} />
           ))}
         </div>
       ) : (

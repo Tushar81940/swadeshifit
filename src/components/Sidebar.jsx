@@ -1,9 +1,12 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Dumbbell, Trophy, Activity, User, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const menuItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
@@ -14,8 +17,8 @@ const Sidebar = () => {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    window.location.href = '/';
+    logout();
+    navigate('/');
   };
 
   return (
@@ -44,8 +47,19 @@ const Sidebar = () => {
         </nav>
       </div>
       
-      {/* Logout Button */}
-      <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
+      {/* User + Logout */}
+      <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 p-4 space-y-3">
+        {user && (
+          <div className="flex items-center space-x-3 px-2">
+            <div className="w-9 h-9 bg-green-600 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+              {user.avatar}
+            </div>
+            <div className="overflow-hidden">
+              <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{user.name}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+            </div>
+          </div>
+        )}
         <button
           onClick={handleLogout}
           className="flex-shrink-0 w-full group flex items-center px-4 py-3 text-sm font-medium rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"

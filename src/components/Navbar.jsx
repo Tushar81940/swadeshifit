@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Moon, Sun, Dumbbell } from 'lucide-react';
 import { useDarkMode } from '../hooks/useDarkMode';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDark, setIsDark] = useDarkMode();
   const location = useLocation();
-  const isAuthenticated = localStorage.getItem('isAuthenticated');
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
-  const navLinks = isAuthenticated ? [
+  const navLinks = user ? [
     { name: 'Dashboard', path: '/dashboard' },
     { name: 'Workouts', path: '/workouts' },
     { name: 'Challenges', path: '/challenges' },
@@ -22,8 +24,8 @@ const Navbar = () => {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    window.location.href = '/';
+    logout();
+    navigate('/');
   };
 
   return (
@@ -63,7 +65,7 @@ const Navbar = () => {
             </button>
 
             {/* Auth Buttons */}
-            {!isAuthenticated ? (
+            {!user ? (
               <div className="flex items-center space-x-4">
                 <Link to="/login" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-green-600">
                   Login
@@ -73,9 +75,14 @@ const Navbar = () => {
                 </Link>
               </div>
             ) : (
-              <button onClick={handleLogout} className="text-sm font-medium text-red-600 hover:text-red-700">
-                Logout
-              </button>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                  {user.avatar}
+                </div>
+                <button onClick={handleLogout} className="text-sm font-medium text-red-600 hover:text-red-700">
+                  Logout
+                </button>
+              </div>
             )}
           </div>
 
@@ -115,7 +122,7 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            {!isAuthenticated ? (
+            {!user ? (
               <>
                 <Link
                   to="/login"
